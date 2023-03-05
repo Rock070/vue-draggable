@@ -1,100 +1,103 @@
 <script setup lang="ts">
-import { useVModel } from '@vueuse/core';
-import { watch } from 'vue';
+import { useVModel } from '@vueuse/core'
+import { watch } from 'vue'
 
-import debounce from '@/utils/debounce';
+import debounce from '@/utils/debounce'
 
 export interface Item {
-  value: string | number;
-  children?: Item[];
+  value: string | number
+  children?: Item[]
 }
 export interface AtomicTreeNodeProps {
-  items: Item[];
-  level?: number;
-  draggedRef: null | HTMLElement;
+  items: Item[]
+  level?: number
+  draggedRef: null | HTMLElement
 }
 export interface AtomicTreeNodeEmits {
-  (type: 'update:draggedRef', event: HTMLElement | null): void;
+  (type: 'update:draggedRef', event: HTMLElement | null): void
 }
 
 const props = withDefaults(defineProps<AtomicTreeNodeProps>(), {
   level: 1,
-});
-const emits = defineEmits<AtomicTreeNodeEmits>();
+})
+const emits = defineEmits<AtomicTreeNodeEmits>()
 
 const updateDragRef = (val: HTMLElement | null) => {
-  emits('update:draggedRef', val);
-};
+  emits('update:draggedRef', val)
+}
 
-const dragged = useVModel(props, 'draggedRef', emits);
+const dragged = useVModel(props, 'draggedRef', emits)
 const findParent = (
   node: HTMLElement,
-  className: string
+  className: string,
 ): HTMLElement | null => {
-  let parent = node;
-  let yes = false;
+  let parent = node
+  let yes = false
   while (parent !== null && !yes) {
     if (parent.classList.contains(className)) {
-      yes = true;
-      break;
+      yes = true
+      break
     }
-    parent = (node?.parentNode as HTMLElement) ?? null;
-    if (!parent) break;
+    parent = (node?.parentNode as HTMLElement) ?? null
+    if (!parent)
+      break
   }
 
-  return parent;
-};
+  return parent
+}
 
 watch(
   dragged,
-  val => {
+  (val) => {
     // eslint-disable-next-line no-console
-    console.log('watch dragged', val);
+    console.log('watch dragged', val)
   },
   {
     immediate: true,
-  }
-);
+  },
+)
 
 const onDragStart = (e: DragEvent) => {
-  const target = e.target as HTMLElement;
+  const target = e.target as HTMLElement
 
-  dragged.value = target;
-};
+  dragged.value = target
+}
 
 const onDragEnter = (e: DragEvent) => {
-  const target = e.target as HTMLElement;
+  const target = e.target as HTMLElement
 
-  const parent = findParent(target, 'dropzone');
-  if (!parent) return;
-  if (parent.classList.contains('dropzone')) {
-    parent.classList.add('border', 'border-red-200');
-  }
-};
+  const parent = findParent(target, 'dropzone')
+  if (!parent)
+    return
+  if (parent.classList.contains('dropzone'))
+    parent.classList.add('border', 'border-red-200')
+}
 
-const onDragEnterImpl = debounce(onDragEnter, 200);
+const onDragEnterImpl = debounce(onDragEnter, 200)
 
 const onDragLeave = (e: DragEvent) => {
-  const target = e.target as HTMLElement;
-  const parent = findParent(target, 'dropzone');
-  if (!parent) return;
-  parent.classList.remove('border', 'border-red-200');
-};
-const onDragLeaveImpl = debounce(onDragLeave, 200);
+  const target = e.target as HTMLElement
+  const parent = findParent(target, 'dropzone')
+  if (!parent)
+    return
+  parent.classList.remove('border', 'border-red-200')
+}
+const onDragLeaveImpl = debounce(onDragLeave, 200)
 
 const onDrop = (e: DragEvent) => {
-  const target = e.target as HTMLElement;
-  const parent = findParent(target, 'dropzone');
+  const target = e.target as HTMLElement
+  const parent = findParent(target, 'dropzone')
 
   // move dragged element to the selected drop target
-  if (!parent || !dragged.value?.parentNode) return;
+  if (!parent || !dragged.value?.parentNode)
+    return
 
-  dragged.value.parentNode.removeChild(dragged.value);
-  parent.appendChild(dragged.value);
+  dragged.value.parentNode.removeChild(dragged.value)
+  parent.appendChild(dragged.value)
 
-  parent.classList.remove('border', 'border-red-200');
+  parent.classList.remove('border', 'border-red-200')
   // emits('update:draggedRef', null);
-};
+}
 </script>
 
 <template>
@@ -102,7 +105,7 @@ const onDrop = (e: DragEvent) => {
     v-for="j in items"
     :key="j.value"
     class="dropzone"
-    :style="{ 'padding-left': 10 * level + 'px'}"
+    :style="{ 'padding-left': `${10 * level}px` }"
   >
     <li
       :key="j.value"
@@ -125,8 +128,6 @@ const onDrop = (e: DragEvent) => {
     />
   </ul>
 </template>
-
-
 
 <style scoped>
 .smooth-dnd {

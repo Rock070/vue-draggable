@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref } from 'vue'
 
-const draggedRef = ref<HTMLElement | null>(null);
+const draggedRef = ref<HTMLElement | null>(null)
 const updateDraggedRef = (el: HTMLElement | null) => {
-  draggedRef.value = el;
-};
+  draggedRef.value = el
+}
 </script>
 
 <template>
@@ -16,4 +16,3 @@ const updateDraggedRef = (el: HTMLElement | null) => {
     />
   </div>
 </template>
-
